@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Rescisão CLT 2026 | Grátis e Atualizada</title>
+    <meta name="description" content="Calcule gratuitamente sua rescisão trabalhista, FGTS, férias, décimo terceiro proporcional e multa de 40% com as regras da CLT 2026.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://seusite.com.br/calculadora-rescisao-clt">
+    <meta property="og:title" content="Calculadora de Rescisão CLT 2026 | Grátis e Atualizada">
+    <meta property="og:description" content="Simulação completa de direitos trabalhistas: FGTS, Multa de 40%, Aviso Prévio e Férias.">
+    <meta property="og:image" content="https://seusite.com.br/assets/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Calculadora de Rescisão CLT 2026">
+    <meta property="twitter:description" content="Calcule seus direitos trabalhistas de forma rápida e segura.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Schema Markup JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FinancialService",
+      "name": "Trabalhista CLT 2026",
+      "description": "Calculadoras trabalhistas gratuitas para trabalhadores brasileiros.",
+      "url": "https://seusite.com.br"
+    }
+    </script>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container nav-content">
+            <div class="logo">TRABALHISTA <span>CLT 2026</span></div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#inicio">Início</a></li>
+                    <li><a href="#calculadora">Calculadora de Rescisão</a></li>
+                    <li><a href="#fgts">Calculadora de FGTS</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="inicio" class="hero">
+            <div class="container">
+                <div id="ad-top" class="ad-area">Anúncio</div>
+                <h1>Calculadoras Trabalhistas CLT 2026</h1>
+                <p>Calcule gratuitamente rescisão trabalhista, FGTS e outros direitos trabalhistas atualizados com precisão e segurança.</p>
+                <a href="#calculadora" class="btn-primary">Calcular Agora</a>
+            </div>
+        </section>
+
+        <!-- Calculadora de Rescisão -->
+        <section id="calculadora" class="section">
+            <div class="container">
+                <div class="card card-main">
+                    <div class="card-header">
+                        <h2>Calculadora de Rescisão CLT 2026</h2>
+                    </div>
+                    <form id="form-rescisao" class="grid-form">
+                        <div class="form-group">
+                            <label for="admissao">Data de Admissão</label>
+                            <input type="date" id="admissao" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="desligamento">Data de Desligamento</label>
+                            <input type="date" id="desligamento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="salario">Salário Bruto Mensal (R$)</label>
+                            <input type="number" id="salario" step="0.01" placeholder="Ex: 2500,00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="motivo">Tipo de Desligamento</label>
+                            <select id="motivo">
+                                <option value="sem-justa-causa">Sem justa causa</option>
+                                <option value="pedido-demissao">Pedido de demissão</option>
+                                <option value="termino-contrato">Término de contrato</option>
+                                <option value="justa-causa">Justa causa</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="aviso">Aviso Prévio</label>
+                            <select id="aviso">
+                                <option value="trabalhado">Trabalhado</option>
+                                <option value="indenizado">Indenizado</option>
+                                <option value="nao-se-aplica">Não se aplica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ferias-vencidas">Possui Férias Vencidas?</label>
+                            <select id="ferias-vencidas">
+                                <option value="nao">Não</option>
+                                <option value="sim">Sim</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tem-fgts">Calcular Saldo FGTS?</label>
+                            <select id="tem-fgts">
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não</option>
+                            </select>
+                        </div>
+                        <div class="form-btn-area">
+                            <button type="submit" class="btn-calculate">Calcular Rescisão</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Painel de Resultados -->
+                <div id="resultado-rescisao" class="card card-result hidden">
+                    <div class="result-header">
+                        <h3>Valor estimado da rescisão</h3>
+                        <div class="total-value" id="res-total">R$ 0,00</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item"><span>Saldo de Salário</span><strong id="res-saldo-salario">R$ 0,00</strong></div>
+                        <div class="result-item"><span>13º Proporcional</span><strong id="res-13-prop">R$ 0,00</strong></div>
+                        <div class="result-item"><span>Férias Proporcionais</span><strong id="res-ferias-prop">R$ 0,00</strong></div>
+                        <div class="result-item"><span>1/3 Constitucional</span><strong id="res-terco">R$ 0,00</strong></div>
+                        <div class="result-item"><span>Férias Vencidas</span><strong id="res-ferias-vencidas">R$ 0,00</strong></div>
+                        <div class="result-item"><span>Aviso Prévio</span><strong id="res-aviso">R$ 0,00</strong></div>
+                        <div class="result-item"><span>FGTS Estimado</span><strong id="res-fgts">R$ 0,00</strong></div>
+                        <div class="result-item"><span>Multa FGTS (40%)</span><strong id="res-multa">R$ 0,00</strong></div>
+                    </div>
+                    <div class="result-actions">
+                        <button onclick="window.print()" class="btn-outline">Imprimir</button>
+                        <button onclick="copiarResultado()" class="btn-outline">Copiar Resultado</button>
+                        <button onclick="resetarCalculo()" class="btn-text">Refazer cálculo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="ad-middle" class="ad-area container">Anúncio</div>
+
+        <!-- Calculadora FGTS -->
+        <section id="fgts" class="section bg-light">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Calculadora de FGTS</h2>
+                    </div>
+                    <form id="form-fgts" class="grid-form">
+                        <div class="form-group">
+                            <label>Salário Bruto</label>
+                            <input type="number" id="fgts-salario" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Meses Trabalhados</label>
+                            <input type="number" id="fgts-meses" required>
+                        </div>
+                        <div class="form-btn-area">
+                            <button type="submit" class="btn-calculate">Calcular FGTS</button>
+                        </div>
+                    </form>
+                    <div id="resultado-fgts" class="result-simple hidden">
+                        <p>FGTS acumulado estimado:</p>
+                        <h4 id="fgts-total-val">R$ 0,00</h4>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Explicação -->
+        <section class="section container">
+            <div class="content-text">
+                <h2>Como calculamos os valores?</h2>
+                <div class="grid-explanation">
+                    <div class="exp-item">
+                        <h4>Saldo de Salário</h4>
+                        <p>Valor referente aos dias trabalhados no mês do desligamento.</p>
+                    </div>
+                    <div class="exp-item">
+                        <h4>Férias Proporcionais</h4>
+                        <p>Direito a 1/12 de salário por mês trabalhado, acrescido de 1/3 constitucional.</p>
+                    </div>
+                    <div class="exp-item">
+                        <h4>Décimo Terceiro</h4>
+                        <p>Proporcional aos meses trabalhados no ano corrente (mês com 15+ dias conta como cheio).</p>
+                    </div>
+                    <div class="exp-item">
+                        <h4>Aviso Prévio</h4>
+                        <p>Calculado conforme a Lei 12.506/2011, variando de 30 a 90 dias conforme o tempo de casa.</p>
+                    </div>
+                </div>
+                <div class="warning-box">
+                    <strong>AVISO LEGAL:</strong> Esta calculadora fornece apenas uma estimativa baseada nas regras gerais da CLT. Convenções coletivas, acordos trabalhistas, descontos legais e situações específicas podem alterar os valores finais.
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="section bg-light">
+            <div class="container">
+                <h2 class="text-center">Dúvidas Frequentes</h2>
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <h3>Como calcular rescisão sem justa causa?</h3>
+                        <p>Inclui saldo de salário, 13º proporcional, férias vencidas e proporcionais + 1/3, aviso prévio e multa de 40% do FGTS.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>O FGTS entra na rescisão?</h3>
+                        <p>Sim, o saldo é liberado para saque na demissão sem justa causa, junto com a multa de 40% paga pela empresa.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>O que acontece na justa causa?</h3>
+                        <p>O trabalhador perde o direito ao aviso prévio, 13º proporcional, multa de 40% e ao saque do FGTS.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h3>Quem pede demissão recebe FGTS?</h3>
+                        <p>Não. No pedido de demissão, o saldo do FGTS fica na conta e o trabalhador não recebe a multa de 40%.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lead Capture -->
+        <section class="section">
+            <div class="container">
+                <div class="card lead-card">
+                    <h3>Receba mais calculadoras trabalhistas</h3>
+                    <p>Fique por dentro das atualizações da CLT 2026 no seu e-mail.</p>
+                    <form class="form-inline">
+                        <input type="text" placeholder="Seu nome" required>
+                        <input type="email" placeholder="Seu e-mail" required>
+                        <button type="submit" class="btn-primary">Receber gratuitamente</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <div id="ad-bottom" class="ad-area container">Anúncio</div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Trabalhista CLT 2026 - Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
