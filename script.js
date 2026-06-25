@@ -2,15 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const formRescisao = document.getElementById('form-rescisao');
     const formFgts = document.getElementById('form-fgts');
 
-    formRescisao.addEventListener('submit', (e) => {
-        e.preventDefault();
-        calcularRescisao();
-    });
+    if (formRescisao) {
+        formRescisao.addEventListener('submit', (e) => {
+            e.preventDefault();
+            calcularRescisao();
+        });
+    }
 
-    formFgts.addEventListener('submit', (e) => {
-        e.preventDefault();
-        calcularFgtsSimples();
-    });
+    if (formFgts) {
+        formFgts.addEventListener('submit', (e) => {
+            e.preventDefault();
+            calcularFgtsSimples();
+        });
+    }
 });
 
 /**
@@ -50,30 +54,33 @@ function calcularAvosDecimo(admissao, desligamento) {
  * Regra: Conta de data a data. Fração >= 15 dias gera 1 avo.
  */
 function calcularAvosFerias(admissao, desligamento) {
-    let avos = 0;
-    let dataAniversario = new Date(admissao.getTime());
+    let anosDiff = desligamento.getFullYear() - admissao.getFullYear();
+    let mesesDiff = desligamento.getMonth() - admissao.getMonth();
     
-    while (true) {
-        let proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, admissao.getDate());
-        
-        if (proximoAniversario.getDate() !== admissao.getDate()) {
-            proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, 0);
-        }
-
-        if (proximoAniversario > desligamento) {
-            const diffTime = Math.abs(desligamento - dataAniversario);
-            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diasRestantes >= 15) {
-                avos++;
-            }
-            break;
-        }
-
-        avos++;
-        dataAniversario = proximoAniversario;
+    let totalMeses = (anosDiff * 12) + mesesDiff;
+    
+    let dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), admissao.getDate());
+    
+    if (dataUltimoAniversario.getDate() !== admissao.getDate()) {
+        dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), 0);
     }
-
+    
+    if (dataUltimoAniversario > desligamento) {
+        totalMeses--;
+        dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth() - 1, admissao.getDate());
+        if (dataUltimoAniversario.getDate() !== admissao.getDate()) {
+            dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), 0);
+        }
+    }
+    
+    const diffTime = Math.abs(desligamento - dataUltimoAniversario);
+    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let avos = totalMeses;
+    if (diasRestantes >= 15) {
+        avos++;
+    }
+    
     return avos % 12; 
 }
 
@@ -81,28 +88,32 @@ function calcularAvosFerias(admissao, desligamento) {
  * CONTA OS MESES TOTAIS TRABALHADOS PARA EFEITO DE FGTS ACUMULADO
  */
 function calcularMesesTotaisTrabalhados(admissao, desligamento) {
-    let meses = 0;
-    let dataAniversario = new Date(admissao.getTime());
-
-    while (true) {
-        let proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, admissao.getDate());
-        if (proximoAniversario.getDate() !== admissao.getDate()) {
-            proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, 0);
-        }
-
-        if (proximoAniversario > desligamento) {
-            const diffTime = Math.abs(desligamento - dataAniversario);
-            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diasRestantes >= 15) {
-                meses++;
-            }
-            break;
-        }
-
-        meses++;
-        dataAniversario = proximoAniversario;
+    let anosDiff = desligamento.getFullYear() - admissao.getFullYear();
+    let mesesDiff = desligamento.getMonth() - admissao.getMonth();
+    
+    let totalMeses = (anosDiff * 12) + mesesDiff;
+    
+    let dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), admissao.getDate());
+    if (dataUltimoAniversario.getDate() !== admissao.getDate()) {
+        dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), 0);
     }
-    return meses;
+    
+    if (dataUltimoAniversario > desligamento) {
+        totalMeses--;
+        dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth() - 1, admissao.getDate());
+        if (dataUltimoAniversario.getDate() !== admissao.getDate()) {
+            dataUltimoAniversario = new Date(desligamento.getFullYear(), desligamento.getMonth(), 0);
+        }
+    }
+    
+    const diffTime = Math.abs(desligamento - dataUltimoAniversario);
+    const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diasRestantes >= 15) {
+        totalMeses++;
+    }
+    
+    return Math.max(0, totalMeses);
 }
 
 /**
@@ -126,8 +137,9 @@ function calcularRescisao() {
         return;
     }
 
-    const admissao = new Date(admissaoInput);
-    const desligamento = new Date(desligamentoInput);
+    // Tratamento de fuso horário local anexando 'T00:00'
+    const admissao = new Date(admissaoInput + 'T00:00');
+    const desligamento = new Date(desligamentoInput + 'T00:00');
 
     if (isNaN(admissao.getTime()) || isNaN(desligamento.getTime())) {
         alert("Formato de data inválido. Por favor, verifique os campos.");
@@ -154,7 +166,7 @@ function calcularRescisao() {
     const temFeriasVencidas = document.getElementById('ferias-vencidas').value === 'sim';
     const querFgts = document.getElementById('tem-fgts').value === 'sim';
 
-    // AJUSTE ALTA PRIORIDADE: Saldo de Salário calculado sobre base comercial padrão de 30 dias
+    // Saldo de Salário calculado sobre base comercial padrão de 30 dias
     const diaDesligamento = desligamento.getDate();
     const saldoSalario = (salario / 30) * diaDesligamento;
 
@@ -232,7 +244,8 @@ function formatarMoeda(valor) {
 }
 
 function resetarCalculo() {
-    document.getElementById('form-rescisao').reset();
+    const form = document.getElementById('form-rescisao');
+    if (form) form.reset();
     document.getElementById('resultado-rescisao').classList.add('hidden');
     window.scrollTo(0, 0);
 }
