@@ -13,61 +13,177 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+/**
+ * CONTA AVOS DE 13º SALÁRIO (Calendário Civil: Janeiro a Dezembro)
+ * Regra: Fração igual ou superior a 15 dias dentro do mesmo mês civil.
+ */
+function calcularAvosDecimo(admissao, desligamento) {
+    let avos = 0;
+    const anoRescisao = desligamento.getFullYear();
+    
+    const mesInicio = (admissao.getFullYear() === anoRescisao) ? admissao.getMonth() : 0;
+    const mesFim = desligamento.getMonth();
+
+    for (let mes = mesInicio; mes <= mesFim; mes++) {
+        let diasTrabalhadosNoMes = 0;
+
+        if (mes === mesInicio && admissao.getFullYear() === anoRescisao) {
+            const ultimoDiaDoMes = new Date(anoRescisao, mes + 1, 0).getDate();
+            diasTrabalhadosNoMes = ultimoDiaDoMes - admissao.getDate() + 1;
+        }
+        else if (mes === mesFim) {
+            diasTrabalhadosNoMes = desligamento.getDate();
+        }
+        else {
+            diasTrabalhadosNoMes = 30; 
+        }
+
+        if (diasTrabalhadosNoMes >= 15) {
+            avos++;
+        }
+    }
+    return Math.min(12, avos);
+}
+
+/**
+ * CONTA AVOS DE FÉRIAS PROPORCIONAIS (Meses Contratuais / Período Aquisitivo)
+ * Regra: Conta de data a data. Fração >= 15 dias gera 1 avo.
+ */
+function calcularAvosFerias(admissao, desligamento) {
+    let avos = 0;
+    let dataAniversario = new Date(admissao.getTime());
+    
+    while (true) {
+        let proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, admissao.getDate());
+        
+        if (proximoAniversario.getDate() !== admissao.getDate()) {
+            proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, 0);
+        }
+
+        if (proximoAniversario > desligamento) {
+            const diffTime = Math.abs(desligamento - dataAniversario);
+            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diasRestantes >= 15) {
+                avos++;
+            }
+            break;
+        }
+
+        avos++;
+        dataAniversario = proximoAniversario;
+    }
+
+    return avos % 12; 
+}
+
+/**
+ * CONTA OS MESES TOTAIS TRABALHADOS PARA EFEITO DE FGTS ACUMULADO
+ */
+function calcularMesesTotaisTrabalhados(admissao, desligamento) {
+    let meses = 0;
+    let dataAniversario = new Date(admissao.getTime());
+
+    while (true) {
+        let proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, admissao.getDate());
+        if (proximoAniversario.getDate() !== admissao.getDate()) {
+            proximoAniversario = new Date(dataAniversario.getFullYear(), dataAniversario.getMonth() + 1, 0);
+        }
+
+        if (proximoAniversario > desligamento) {
+            const diffTime = Math.abs(desligamento - dataAniversario);
+            const diasRestantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diasRestantes >= 15) {
+                meses++;
+            }
+            break;
+        }
+
+        meses++;
+        dataAniversario = proximoAniversario;
+    }
+    return meses;
+}
+
+/**
+ * CALCULA OS DIAS DE AVISO PRÉVIO PROPORCIONAL (Lei 12.506/2011)
+ */
+function calcularDiasAvisoPrevio(admissao, desligamento) {
+    const diffTime = Math.abs(desligamento - admissao);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const anosCompletos = Math.floor(diffDays / 365);
+    
+    return Math.min(90, 30 + (anosCompletos * 3));
+}
+
 function calcularRescisao() {
-    // Pegar valores
-    const admissao = new Date(document.getElementById('admissao').value);
-    const desligamento = new Date(document.getElementById('desligamento').value);
-    const salario = parseFloat(document.getElementById('salario').value);
-    const motivo = document.getElementById('motivo').value;
-    const aviso = document.getElementById('aviso').value;
-    const temFeriasVencidas = document.getElementById('ferias-vencidas').value === 'sim';
-    const querFgts = document.getElementById('tem-fgts').value === 'sim';
+    // 1. Validação das Datas (Prevenção de campos vazios)
+    const admissaoInput = document.getElementById('admissao').value;
+    const desligamentoInput = document.getElementById('desligamento').value;
+
+    if (!admissaoInput || !desligamentoInput) {
+        alert("Por favor, preencha as datas de admissão e desligamento.");
+        return;
+    }
+
+    const admissao = new Date(admissaoInput);
+    const desligamento = new Date(desligamentoInput);
+
+    if (isNaN(admissao.getTime()) || isNaN(desligamento.getTime())) {
+        alert("Formato de data inválido. Por favor, verifique os campos.");
+        return;
+    }
 
     if (desligamento <= admissao) {
         alert("A data de desligamento deve ser posterior à admissão.");
         return;
     }
 
-    // Cálculos de tempo
-    const diffTime = Math.abs(desligamento - admissao);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const anosCompletos = Math.floor(diffDays / 365);
-    
-    // 1. Saldo de Salário
+    // 2. Validação do Salário
+    const salarioInput = document.getElementById('salario').value;
+    const salario = parseFloat(salarioInput);
+
+    if (isNaN(salario) || salario <= 0) {
+        alert("Por favor, insira um valor de salário válido e maior que zero.");
+        return;
+    }
+
+    // Pegar demais valores do DOM
+    const motivo = document.getElementById('motivo').value;
+    const aviso = document.getElementById('aviso').value;
+    const temFeriasVencidas = document.getElementById('ferias-vencidas').value === 'sim';
+    const querFgts = document.getElementById('tem-fgts').value === 'sim';
+
+    // AJUSTE ALTA PRIORIDADE: Saldo de Salário calculado sobre base comercial padrão de 30 dias
     const diaDesligamento = desligamento.getDate();
     const saldoSalario = (salario / 30) * diaDesligamento;
 
-    // 2. 13º Proporcional
-    // Considera meses do ano atual
-    const mesDesligamento = desligamento.getMonth() + 1;
-    let meses13 = diaDesligamento >= 15 ? mesDesligamento : mesDesligamento - 1;
-    if (desligamento.getFullYear() > admissao.getFullYear() && admissao.getMonth() > 0) {
-        // Se entrou no meio do ano anterior, mas saiu este ano
-    }
-    // Simplificado para o ano corrente
-    const decimoTerceiro = (salario / 12) * meses13;
+    // 13º Proporcional
+    const avos13 = (motivo !== 'justa-causa') ? calcularAvosDecimo(admissao, desligamento) : 0;
+    const decimoTerceiro = (salario / 12) * avos13;
 
-    // 3. Férias Proporcionais
-    // Cálculo simplificado de avos (meses trabalhados no total % 12)
-    const mesesTrabalhadosTotal = Math.floor(diffDays / 30.44);
-    const avosFerias = mesesTrabalhadosTotal % 12;
+    // Férias Proporcionais
+    const avosFerias = (motivo !== 'justa-causa') ? calcularAvosFerias(admissao, desligamento) : 0;
     const feriasProp = (salario / 12) * avosFerias;
-    const tercoConstitucional = (feriasProp + (temFeriasVencidas ? salario : 0)) / 3;
 
-    // 4. Férias Vencidas
+    // Férias Vencidas
     const valorFeriasVencidas = temFeriasVencidas ? salario : 0;
 
-    // 5. Aviso Prévio (Lei 12.506/2011)
+    // Terço Constitucional
+    const tercoConstitucional = (feriasProp + valorFeriasVencidas) / 3;
+
+    // Aviso Prévio Indenizado
     let valorAviso = 0;
-    if (aviso === 'indenizado') {
-        const diasAviso = 30 + (anosCompletos * 3);
-        const diasAvisoLimitado = Math.min(diasAviso, 90);
-        valorAviso = (salario / 30) * diasAvisoLimitado;
+    if (aviso === 'indenizado' && motivo === 'sem-justa-causa') {
+        const diasAviso = calcularDiasAvisoPrevio(admissao, desligamento);
+        valorAviso = (salario / 30) * diasAviso;
     }
 
-    // 6. FGTS e Multa
+    // FGTS e Multa Rescisória
     let fgtsEstimado = 0;
     let multaFgts = 0;
+    const mesesTrabalhadosTotal = calcularMesesTotaisTrabalhados(admissao, desligamento);
+
     if (querFgts) {
         fgtsEstimado = (salario * 0.08) * mesesTrabalhadosTotal;
         if (motivo === 'sem-justa-causa') {
@@ -75,23 +191,12 @@ function calcularRescisao() {
         }
     }
 
-    // Aplicar Regras por Tipo de Motivo
-    let total = saldoSalario + feriasProp + tercoConstitucional + valorFeriasVencidas;
-    
-    if (motivo !== 'justa-causa') {
-        total += decimoTerceiro;
-    }
-    
-    if (motivo === 'sem-justa-causa') {
-        total += valorAviso + multaFgts;
-    } else if (motivo === 'pedido-demissao' || motivo === 'justa-causa') {
-        valorAviso = 0;
-        multaFgts = 0;
-    }
+    // Somatória Final
+    const total = saldoSalario + decimoTerceiro + feriasProp + valorFeriasVencidas + tercoConstitucional + valorAviso + multaFgts;
 
-    // Exibir Resultados
+    // Injetar Resultados no HTML
     document.getElementById('res-saldo-salario').innerText = formatarMoeda(saldoSalario);
-    document.getElementById('res-13-prop').innerText = motivo === 'justa-causa' ? "R$ 0,00" : formatarMoeda(decimoTerceiro);
+    document.getElementById('res-13-prop').innerText = formatarMoeda(decimoTerceiro);
     document.getElementById('res-ferias-prop').innerText = formatarMoeda(feriasProp);
     document.getElementById('res-terco').innerText = formatarMoeda(tercoConstitucional);
     document.getElementById('res-ferias-vencidas').innerText = formatarMoeda(valorFeriasVencidas);
@@ -105,8 +210,17 @@ function calcularRescisao() {
 }
 
 function calcularFgtsSimples() {
-    const salario = parseFloat(document.getElementById('fgts-salario').value);
-    const meses = parseInt(document.getElementById('fgts-meses').value);
+    const salarioInput = document.getElementById('fgts-salario').value;
+    const mesesInput = document.getElementById('fgts-meses').value;
+    
+    const salario = parseFloat(salarioInput);
+    const meses = parseInt(mesesInput);
+
+    if (isNaN(salario) || salario <= 0 || isNaN(meses) || meses <= 0) {
+        alert("Por favor, insira valores válidos para o cálculo do FGTS.");
+        return;
+    }
+
     const total = (salario * 0.08) * meses;
 
     document.getElementById('fgts-total-val').innerText = formatarMoeda(total);
@@ -134,18 +248,7 @@ function copiarResultado() {
     const multa = document.getElementById('res-multa').innerText;
     const total = document.getElementById('res-total').innerText;
 
-    const texto = `CALCULADORA DE RESCISÃO CLT 2026
-----------------------------------
-Saldo de salário: ${saldo}
-13º proporcional: ${decimo}
-Férias proporcionais: ${feriasP}
-1/3 constitucional: ${terco}
-Férias vencidas: ${feriasV}
-Aviso prévio: ${aviso}
-FGTS estimado: ${fgts}
-Multa FGTS: ${multa}
-----------------------------------
-TOTAL ESTIMADO: ${total}`;
+    const texto = `CALCULADORA DE RESCISÃO CLT 2026\n----------------------------------\nSaldo de salário: ${saldo}\n13º proporcional: ${decimo}\nFérias proporcionais: ${feriasP}\n1/3 constitucional: ${terco}\nFérias vencidas: ${feriasV}\nAviso prévio: ${aviso}\nFGTS estimado: ${fgts}\nMulta FGTS: ${multa}\n----------------------------------\nTOTAL ESTIMADO: ${total}`;
 
     navigator.clipboard.writeText(texto).then(() => {
         alert("Resultado copiado para a área de transferência!");
